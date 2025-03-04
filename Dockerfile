@@ -1,5 +1,5 @@
-# Usa una imagen base de Node.js (puedes ajustar la versión si es necesario)
-FROM node:16-alpine
+# Usa una imagen base que ya incluya Bun
+FROM oven/bun:latest
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
