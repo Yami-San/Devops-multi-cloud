@@ -1,0 +1,8 @@
+{
+    "version": 2,
+    "name": "devops-project",
+    "builds": [
+      { "src": "package.json", "use": "@vercel/next" }
+    ]
+  }
+  
