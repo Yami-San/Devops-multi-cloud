@@ -45,7 +45,7 @@ jobs:
           fi
 
       - name: Instalar Vercel CLI
-        run: npm install -g vercel
+        run: bunx vercel --version
 
       - name: Desplegar en producción (Vercel)
         run: vercel --prod --yes --token ${{ secrets.VERCEL_TOKEN }}
