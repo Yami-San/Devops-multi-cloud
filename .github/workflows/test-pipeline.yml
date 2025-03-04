@@ -1,0 +1,52 @@
+name: CI - Pipeline de Pruebas
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Instalar Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Instalar dependencias
+        run: bun install
+
+      - name: Configurar variables de entorno
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> .env
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env
+         # echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env
+
+      - name: Ejecutar migraciones de la BD
+        run: bunx prisma migrate deploy
+
+      - name: Ejecutar pruebas con cobertura
+        run: bun test --coverage
+
+      - name: Verificar cobertura mínima
+        run: |
+          # Se asume que el reporte de cobertura contiene una línea similar a "All files                     |  100.00 |   86.37 |"
+          COVERAGE=$(bun test --coverage | grep 'All files' | awk '{print $6}' | sed 's/%//')
+          echo "Cobertura: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 60" | bc -l) )); then
+            echo "La cobertura de pruebas es menor al 60%. No se permite continuar."
+            exit 1
+          fi
+
+      - name: Mensaje de éxito
+        if: success()
+        run: echo "✅ Todas las pruebas han pasado con cobertura suficiente."
