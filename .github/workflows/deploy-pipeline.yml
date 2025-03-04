@@ -1,0 +1,48 @@
+name: CD - Pipeline de Producción
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  production:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Instalar Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+
+      - name: Instalar dependencias
+        run: bun install
+
+      - name: Configurar variables de entorno
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" >> .env
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" >> .env
+
+      - name: Ejecutar migraciones de la BD
+        run: bunx prisma migrate deploy
+
+      - name: Ejecutar pruebas con cobertura
+        run: bun test --coverage
+
+      - name: Verificar cobertura mínima (85%)
+        run: |
+          # Se asume que la salida de bun test --coverage contiene una línea similar a:
+          # "All files                     |  100.00 |   86.37 |"
+          COVERAGE=$(bun test --coverage | grep 'All files' | awk '{print $6}' | sed 's/%//')
+          echo "Cobertura: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 85" | bc -l) )); then
+            echo "La cobertura de pruebas es menor al 85%. No se permite continuar."
+            exit 1
+          fi
+
+      - name: Desplegar en producción (Vercel)
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
