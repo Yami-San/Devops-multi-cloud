@@ -64,7 +64,7 @@ describe("Aviones API", () => {
 
   it("debe actualizar parcialmente un avión", async () => {
     // Supongamos que ya existe un avión con id "test-avion-id"
-    const req = createRequest("PATCH", { id: "test-avion-id", modelo: "Nuevo Modelo" });
+    const req = createRequest("PATCH", { id: avionId, modelo: "Nuevo Modelo" });
     const res = await PATCH(req);
     expect(res.status).toBe(200);
     const data = await res.json();

@@ -75,7 +75,7 @@ describe("Seguros API", () => {
 
   it("debe actualizar parcialmente un seguro", async () => {
     // Supongamos que ya existe un seguro con id "test-seguro-id"
-    const req = createRequest("PATCH", { id: "test-seguro-id", poliza: "Nueva Poliza" });
+    const req = createRequest("PATCH", { id: seguroId, poliza: "Nueva Poliza" });
     const res = await PATCH(req);
     expect(res.status).toBe(200);
     const data = await res.json();

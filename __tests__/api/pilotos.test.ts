@@ -40,7 +40,7 @@ describe("Pilotos API", () => {
 
   it("debe actualizar parcialmente un piloto", async () => {
     // Supongamos que ya existe un piloto con id "test-piloto-id"
-    const req = createRequest("PATCH", { id: "test-piloto-id", nombre: "Nuevo Nombre" });
+    const req = createRequest("PATCH", { id: pilotoId, nombre: "Nuevo Nombre" });
     const res = await PATCH(req);
     expect(res.status).toBe(200);
     const data = await res.json();
