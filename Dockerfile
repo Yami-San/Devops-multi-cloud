@@ -1,23 +1,21 @@
-# Usa una imagen base que ya incluya Bun
-FROM oven/bun:latest
+# Usa una imagen base de Node.js (puedes ajustar la versión)
+FROM node:16-alpine
 
-# Establece el directorio de trabajo dentro del contenedor
+# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos de configuración de dependencias (si tienes bun.lockb, inclúyelo)
-COPY package.json bun.lockb* ./
-
-# Instala las dependencias usando Bun
-RUN bun install
+# Copia los archivos de dependencias y luego instala
+COPY package*.json ./
+RUN npm install
 
 # Copia el resto del código de la aplicación
 COPY . .
 
-# Construye la aplicación (ajusta el comando según lo definido en tu package.json)
-RUN bun run build
+# Genera el build de la aplicación
+RUN npm run build
 
-# Expone el puerto en el que se ejecuta la aplicación (por defecto Next.js usa 3000)
+# Expone el puerto en el que se ejecutará la aplicación
 EXPOSE 3000
 
 # Comando para iniciar la aplicación
-CMD ["bun", "run", "start"]
+CMD ["npm", "start"]
