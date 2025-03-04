@@ -33,9 +33,19 @@ jobs:
       - name: Generar Prisma Client
         run: bunx prisma generate
 
-      # Opcional: Ejecutar pruebas (si deseas que el build falle si hay errores)
-      # - name: Ejecutar pruebas con cobertura
-      #   run: bun test --coverage
+      - name: Ejecutar pruebas con cobertura
+        run: bun test --coverage
+
+      - name: Verificar cobertura mínima (85%)
+        run: |
+          # Se asume que la salida de "bun test --coverage" incluye una línea similar a:
+          # "All files                     |  100.00 |   86.37 |"
+          COVERAGE=$(bun test --coverage | grep 'All files' | awk '{print $6}' | sed 's/%//')
+          echo "Cobertura: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 85" | bc -l) )); then
+            echo "La cobertura de pruebas es menor al 85%. No se permite continuar."
+            exit 1
+          fi
 
       - name: Instalar Docker Buildx
         uses: docker/setup-buildx-action@v2
