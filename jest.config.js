@@ -6,6 +6,7 @@ module.exports = {
   },
   collectCoverage: true,
   coverageDirectory: 'coverage',
+  coverageReporters: ["html", "text", "lcov"],
   coverageThreshold: {
     global: {
       branches: 60, // para pipeline de pruebas (ajusta en producción a 85)

@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Obtener todos los seguros (GET)
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const seguros = await prisma.seguro.findMany();
     return NextResponse.json(seguros, { status: 200 });

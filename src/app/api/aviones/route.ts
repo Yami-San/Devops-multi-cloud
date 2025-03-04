@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Obtener todos los aviones (GET)
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const aviones = await prisma.avion.findMany();
     return NextResponse.json(aviones, { status: 200 });
