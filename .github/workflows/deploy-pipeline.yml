@@ -35,7 +35,7 @@ jobs:
 
       - name: Verificar cobertura mínima (85%)
         run: |
-          # Se asume que la salida de bun test --coverage contiene una línea similar a:
+          # Se asume que la salida de "bun test --coverage" contiene una línea como:
           # "All files                     |  100.00 |   86.37 |"
           COVERAGE=$(bun test --coverage | grep 'All files' | awk '{print $6}' | sed 's/%//')
           echo "Cobertura: $COVERAGE%"
@@ -43,6 +43,9 @@ jobs:
             echo "La cobertura de pruebas es menor al 85%. No se permite continuar."
             exit 1
           fi
+
+      - name: Instalar Vercel CLI
+        run: npm install -g vercel
 
       - name: Desplegar en producción (Vercel)
         run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
