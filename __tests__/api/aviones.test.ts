@@ -4,6 +4,7 @@ import {
   GET as getAviones,
   PUT as putAvion,
   DELETE as deleteAvion,
+  PATCH
 } from "../../src/app/api/aviones/route";
 import { POST as postPiloto } from "@/app/api/pilotos/route";
 import { NextRequest } from "next/server";
@@ -59,6 +60,15 @@ describe("Aviones API", () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data).toHaveProperty("modelo", "Airbus A320");
+  });
+
+  it("debe actualizar parcialmente un avión", async () => {
+    // Supongamos que ya existe un avión con id "test-avion-id"
+    const req = createRequest("PATCH", { id: "test-avion-id", modelo: "Nuevo Modelo" });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data).toHaveProperty("modelo", "Nuevo Modelo");
   });
 
   it("debe eliminar un avión", async () => {

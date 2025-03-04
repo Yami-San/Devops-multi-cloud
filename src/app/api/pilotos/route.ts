@@ -52,6 +52,27 @@ export async function PUT(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  try {
+    const data = await request.json();
+    const { id, ...updates } = data;
+
+    if (!id) {
+      return NextResponse.json({ error: "El campo 'id' es obligatorio." }, { status: 400 });
+    }
+
+    const updatedPiloto = await prisma.piloto.update({
+      where: { id },
+      data: updates,
+    });
+
+    return NextResponse.json(updatedPiloto, { status: 200 });
+  } catch (error) {
+    console.error("Error al actualizar Piloto:", error);
+    return NextResponse.json({ error: "Error al actualizar el piloto." }, { status: 500 });
+  }
+}
+
 // Eliminar un piloto (DELETE)
 export async function DELETE(request: NextRequest) {
   try {

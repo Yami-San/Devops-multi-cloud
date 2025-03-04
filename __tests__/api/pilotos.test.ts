@@ -1,5 +1,5 @@
 import { describe, it, expect } from "bun:test";
-import { POST, GET, PUT, DELETE } from "@/app/api/pilotos/route";
+import { POST, GET, PUT, DELETE, PATCH } from "@/app/api/pilotos/route";
 import { NextRequest } from "next/server";
 
 function createRequest(method: string, body?: any, url = "http://localhost/api/pilotos") {
@@ -36,6 +36,15 @@ describe("Pilotos API", () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data).toHaveProperty("nombre", "Carlos López");
+  });
+
+  it("debe actualizar parcialmente un piloto", async () => {
+    // Supongamos que ya existe un piloto con id "test-piloto-id"
+    const req = createRequest("PATCH", { id: "test-piloto-id", nombre: "Nuevo Nombre" });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data).toHaveProperty("nombre", "Nuevo Nombre");
   });
 
   it("debe eliminar un piloto", async () => {

@@ -41,6 +41,27 @@ export async function PUT(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  try {
+    const data = await request.json();
+    const { id, ...updates } = data;
+
+    if (!id) {
+      return NextResponse.json({ error: "El campo 'id' es obligatorio." }, { status: 400 });
+    }
+
+    const updatedSeguro = await prisma.seguro.update({
+      where: { id },
+      data: updates,
+    });
+
+    return NextResponse.json(updatedSeguro, { status: 200 });
+  } catch (error) {
+    console.error("Error al actualizar Seguro:", error);
+    return NextResponse.json({ error: "Error al actualizar el seguro." }, { status: 500 });
+  }
+}
+
 // Eliminar un seguro (DELETE)
 export async function DELETE(request: NextRequest) {
   try {

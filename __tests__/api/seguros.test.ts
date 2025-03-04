@@ -3,7 +3,7 @@ import {
   POST as postSeguro,
   GET as getSeguros,
   PUT as putSeguro,
-  DELETE as deleteSeguro,
+  DELETE as deleteSeguro, PATCH
 } from "../../src/app/api/seguros/route";
 import { POST as postAvion } from "@/app/api/aviones/route";
 import { POST as postPiloto } from "@/app/api/pilotos/route";
@@ -71,6 +71,15 @@ describe("Seguros API", () => {
     expect(res.status).toBe(200);
     const data = await res.json();
     expect(data).toHaveProperty("poliza", "DEF456");
+  });
+
+  it("debe actualizar parcialmente un seguro", async () => {
+    // Supongamos que ya existe un seguro con id "test-seguro-id"
+    const req = createRequest("PATCH", { id: "test-seguro-id", poliza: "Nueva Poliza" });
+    const res = await PATCH(req);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data).toHaveProperty("poliza", "Nueva Poliza");
   });
 
   it("debe eliminar un seguro", async () => {

@@ -43,6 +43,27 @@ export async function PUT(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  try {
+    const data = await request.json();
+    const { id, ...updates } = data;
+
+    if (!id) {
+      return NextResponse.json({ error: "El campo 'id' es obligatorio." }, { status: 400 });
+    }
+
+    const updatedAvion = await prisma.avion.update({
+      where: { id },
+      data: updates,
+    });
+
+    return NextResponse.json(updatedAvion, { status: 200 });
+  } catch (error) {
+    console.error("Error al actualizar Avión:", error);
+    return NextResponse.json({ error: "Error al actualizar el avión." }, { status: 500 });
+  }
+}
+
 // Eliminar un avión (DELETE)
 export async function DELETE(request: NextRequest) {
   try {
