@@ -1,4 +1,4 @@
-name: CD - Pipeline de Producción con Docker
+name: Pipeline de Producción con Docker
 
 on:
   workflow_dispatch:

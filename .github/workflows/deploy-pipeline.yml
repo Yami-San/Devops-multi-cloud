@@ -1,4 +1,4 @@
-name: CD - Pipeline de Producción
+name: Pipeline de Producción
 
 on:
   workflow_dispatch:
