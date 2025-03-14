@@ -48,15 +48,17 @@ jobs:
             exit 1
           fi
 
-      - name: Mensaje de éxito
+      - name: Build local para Vercel
         if: success()
-        run: echo "✅ Todas las pruebas han pasado con cobertura suficiente."
+        run: npx vercel build
 
-      - name: Desplegar en Vercel (preview)
+      - name: Desplegar en Vercel (preview) con CLI
         if: success()
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prebuilt'
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npx vercel --prebuilt -t ${{ secrets.VERCEL_TOKEN }} \
+            -m githubCommitSha=${{ github.sha }} \
+            -m githubCommitAuthorName=${{ github.actor }} \
+            -m githubDeployment=1
