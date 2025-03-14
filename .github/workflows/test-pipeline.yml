@@ -52,23 +52,8 @@ jobs:
         if: success()
         run: echo "✅ Todas las pruebas han pasado con cobertura suficiente."
 
-      - name: Build local para Vercel
-        if: success()
-        run: npx vercel build
+      - name: Instalar Vercel CLI
+        run: npm install -g vercel
 
-      - name: Pull Vercel Project Settings
-        if: success()
-        run: npx vercel pull --yes
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-      - name: Desplegar en Vercel (preview) con CLI
-        if: success()
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          npx vercel --prebuilt -t ${{ secrets.VERCEL_TOKEN }} \
-            -m githubCommitSha=${{ github.sha }} \
-            -m githubCommitAuthorName=${{ github.actor }} \
-            -m githubDeployment=1
+      - name: Desplegar en producción (Vercel)
+        run: vercel --yes --token ${{ secrets.VERCEL_TOKEN }}
