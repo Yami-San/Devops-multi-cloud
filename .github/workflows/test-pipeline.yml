@@ -48,6 +48,10 @@ jobs:
             exit 1
           fi
 
+      - name: Mensaje de éxito
+        if: success()
+        run: echo "✅ Todas las pruebas han pasado con cobertura suficiente."
+
       - name: Build local para Vercel
         if: success()
         run: npx vercel build
