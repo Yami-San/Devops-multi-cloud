@@ -51,3 +51,12 @@ jobs:
       - name: Mensaje de éxito
         if: success()
         run: echo "✅ Todas las pruebas han pasado con cobertura suficiente."
+
+      - name: Desplegar en Vercel (preview)
+        if: success()
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prebuilt'
