@@ -1,17 +1,17 @@
 // app/api/pilotos/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 // Obtener todos los pilotos (GET)
 export async function GET() {
   try {
+    await prisma.$connect();
     const pilotos = await prisma.piloto.findMany({
       include: { aviones: true } // Incluye la relación con aviones si la requieres
     });
     return NextResponse.json(pilotos, { status: 200 });
   } catch (error) {
+    console.error("Error al obtener los pilotos:", error);
     return NextResponse.json({ error: 'Error al obtener los pilotos' }, { status: 500 });
   }
 }

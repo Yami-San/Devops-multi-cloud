@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,24 +8,23 @@ datasource db {
 }
 
 model Piloto {
-  id     String  @id @default(cuid())
-  nombre String
+  id      String  @id @default(cuid())
+  nombre  String
   aviones Avion[]
 }
 
 model Avion {
-  id        String  @id @default(cuid())
+  id        String   @id @default(cuid())
   modelo    String
   matricula String
   pilotoId  String
-  piloto    Piloto  @relation(fields: [pilotoId], references: [id])
+  piloto    Piloto   @relation(fields: [pilotoId], references: [id])
   seguros   Seguro[]
 }
 
 model Seguro {
-  id      String  @id @default(cuid())
+  id      String @id @default(cuid())
   poliza  String
   avionId String
-  avion   Avion   @relation(fields: [avionId], references: [id])
+  avion   Avion  @relation(fields: [avionId], references: [id])
 }
-
