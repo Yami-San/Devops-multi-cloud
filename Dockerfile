@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copia las definiciones de dependencias e instala en modo CI
 COPY package*.json package-lock.json ./
-RUN npm ci
+RUN npm install
 
 # Copia el resto del código y genera el build de Next.js
 COPY . .
