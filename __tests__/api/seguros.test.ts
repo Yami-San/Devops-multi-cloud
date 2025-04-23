@@ -4,9 +4,9 @@ import {
   GET as getSeguros,
   PUT as putSeguro,
   DELETE as deleteSeguro, PATCH
-} from "../../src/app/api/seguros/route";
-import { POST as postAvion } from "@/app/api/aviones/route";
-import { POST as postPiloto } from "@/app/api/pilotos/route";
+} from "../../src/app/api/v2/seguros/route";
+import { POST as postAvion } from "@/app/api/v2/aviones/route";
+import { POST as postPiloto } from "@/app/api/v2/pilotos/route";
 import { NextRequest } from "next/server";
 
 function createRequest(method: string, body?: any, url = "http://localhost/api/seguros") {

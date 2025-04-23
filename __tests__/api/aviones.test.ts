@@ -5,8 +5,8 @@ import {
   PUT as putAvion,
   DELETE as deleteAvion,
   PATCH
-} from "../../src/app/api/aviones/route";
-import { POST as postPiloto } from "@/app/api/pilotos/route";
+} from "../../src/app/api/v2/aviones/route";
+import { POST as postPiloto } from "@/app/api/v2/pilotos/route";
 import { NextRequest } from "next/server";
 
 function createRequest(method: string, body?: any, url = "http://localhost/api/aviones") {
