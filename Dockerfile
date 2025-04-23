@@ -3,7 +3,7 @@ FROM node:22.14.0-alpine AS builder
 WORKDIR /app
 
 # Copia las definiciones de dependencias e instala en modo CI
-COPY package*.json yarn.lock ./
+COPY package*.json package-lock.json ./
 RUN npm ci
 
 # Copia el resto del código y genera el build de Next.js
