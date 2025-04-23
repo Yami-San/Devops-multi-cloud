@@ -1,21 +1,32 @@
-# Usa una imagen base de Node.js (puedes ajustar la versión)
-FROM node:22.14.0-alpine
-
-# Establece el directorio de trabajo
+# —————— Etapa 1: builder ——————
+FROM node:22.14.0-alpine AS builder
 WORKDIR /app
 
-# Copia los archivos de dependencias y luego instala
-COPY package*.json ./
-RUN npm install
+# Copia las definiciones de dependencias e instala en modo CI
+COPY package*.json yarn.lock ./
+RUN npm ci
 
-# Copia el resto del código de la aplicación
+# Copia el resto del código y genera el build de Next.js
 COPY . .
-
-# Genera el build de la aplicación
 RUN npm run build
 
-# Expone el puerto en el que se ejecutará la aplicación
+# —————— Etapa 2: runner ——————
+FROM node:22.14.0-alpine AS runner
+WORKDIR /app
+
+# Variables para producción
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+ENV PORT=3000
+
+# Copia solo los artefactos necesarios del builder
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
+# Expone el puerto en el que correrá Next.js
 EXPOSE 3000
 
-# Comando para iniciar la aplicación
+# Arranca el servidor en producción
 CMD ["npm", "start"]
