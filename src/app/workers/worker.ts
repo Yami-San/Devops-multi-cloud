@@ -20,6 +20,8 @@ async function publishEntities() {
     const payload = {
       type:    'data-sync',
       sendTo:  SERVICE_NAME,
+      failOn:  '',      // no definido aún
+      error:   '',
       aviones,
       pilotos,
       seguros,
