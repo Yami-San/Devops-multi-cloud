@@ -1,10 +1,9 @@
 #!/bin/sh
-# ── start.sh ──
+# start.sh
 
-# 1) Arranca el worker en segundo plano (ajusta si usas ts-node o ya compilaste)
-#!/bin/sh
-# Ejecuta Next.js en segundo plano
-npm start &
+# 1) Lanza el worker TS en background
+npx ts-node src/app/workers/worker.ts &
 
-# Ejecuta el worker en primer plano
-node ./src/app/workers/worker.js
+# 2) Luego arranca Next.js en primer plano
+npm start
+
