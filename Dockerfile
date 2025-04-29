@@ -2,12 +2,18 @@
 FROM node:22.14.0-alpine AS builder
 WORKDIR /app
 
-# Copia las definiciones de dependencias e instala en modo CI
-COPY package*.json package-lock.json ./
-RUN npm install
+# 1) Copia package.json / lock y prisma schema
+COPY package*.json ./
+COPY prisma ./prisma
 
-# Copia el resto del código y genera el build de Next.js\ COPY . .
+# 2) Instala dependencias y genera Prisma Client
+RUN npm install
+RUN npx prisma generate
+
+# 3) Copia el resto del código y construye Next.js
+COPY . .
 RUN npm run build
+
 
 # —————— Etapa 2: runner ——————
 FROM node:22.14.0-alpine AS runner
