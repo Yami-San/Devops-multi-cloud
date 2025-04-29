@@ -30,7 +30,8 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
 # Copia tu carpeta de worker TypeScript
-COPY --from=builder /src/app/workers ./src/app/workers
+# (src/ está en la raíz, así que el path relativo dentro de /app es src/app/workers)
+COPY --from=builder /app/src/app/workers ./src/app/workers
 
 # Copia y da permisos al script de arranque
 COPY start.sh ./
