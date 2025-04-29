@@ -2,7 +2,7 @@ import { describe, it, expect } from "bun:test";
 import { POST, GET, PUT, DELETE, PATCH } from "@/app/api/v2/pilotos/route";
 import { NextRequest } from "next/server";
 
-function createRequest(method: string, body?: any, url = "http://localhost/api/pilotos") {
+function createRequest(method: string, body?: any, url = "http://localhost/api/v2/pilotos") {
   return new NextRequest(url, {
     method,
     headers: { "Content-Type": "application/json" },

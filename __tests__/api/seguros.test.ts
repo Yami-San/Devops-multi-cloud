@@ -9,7 +9,7 @@ import { POST as postAvion } from "@/app/api/v2/aviones/route";
 import { POST as postPiloto } from "@/app/api/v2/pilotos/route";
 import { NextRequest } from "next/server";
 
-function createRequest(method: string, body?: any, url = "http://localhost/api/seguros") {
+function createRequest(method: string, body?: any, url = "http://localhost/api/v2/seguros") {
   return new NextRequest(url, {
     method,
     headers: { "Content-Type": "application/json" },
@@ -21,7 +21,7 @@ let avionId: string;
 
 beforeAll(async () => {
   // Primero, crea un piloto
-  const pilotoReq = new NextRequest("http://localhost/api/pilotos", {
+  const pilotoReq = new NextRequest("http://localhost/api/v2/pilotos", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nombre: "Piloto para Seguro", avion: null }),
@@ -31,7 +31,7 @@ beforeAll(async () => {
   const pilotoId = pilotoData.id;
 
   // Luego, crea un avión utilizando el piloto creado
-  const avionReq = new NextRequest("http://localhost/api/aviones", {
+  const avionReq = new NextRequest("http://localhost/api/v2/aviones", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -58,7 +58,7 @@ describe("Seguros API", () => {
   });
 
   it("debe obtener todos los seguros", async () => {
-    const req = new NextRequest("http://localhost/api/seguros", { method: "GET" });
+    const req = new NextRequest("http://localhost/api/v2/seguros", { method: "GET" });
     const res = await getSeguros(req);
     expect(res.status).toBe(200);
     const data = await res.json();

@@ -9,7 +9,7 @@ import {
 import { POST as postPiloto } from "@/app/api/v2/pilotos/route";
 import { NextRequest } from "next/server";
 
-function createRequest(method: string, body?: any, url = "http://localhost/api/aviones") {
+function createRequest(method: string, body?: any, url = "http://localhost/api/v2/aviones") {
   return new NextRequest(url, {
     method,
     headers: { "Content-Type": "application/json" },
@@ -22,7 +22,7 @@ let avionId: string;
 
 beforeAll(async () => {
   // Creamos un piloto para obtener un pilotoId válido
-  const pilotoReq = new NextRequest("http://localhost/api/pilotos", {
+  const pilotoReq = new NextRequest("http://localhost/api/v2/pilotos", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nombre: "Piloto Test", avion: null }),
@@ -47,7 +47,7 @@ describe("Aviones API", () => {
   });
 
   it("debe obtener todos los aviones", async () => {
-    const req = new NextRequest("http://localhost/api/aviones", { method: "GET" });
+    const req = new NextRequest("http://localhost/api/v2/aviones", { method: "GET" });
     const res = await getAviones(req);
     expect(res.status).toBe(200);
     const data = await res.json();
