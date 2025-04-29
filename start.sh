@@ -2,7 +2,9 @@
 # ── start.sh ──
 
 # 1) Arranca el worker en segundo plano (ajusta si usas ts-node o ya compilaste)
-npx ts-node src/app/workers/worker.ts &
+#!/bin/sh
+# Ejecuta Next.js en segundo plano
+npm start &
 
-# 2) Inicia Next.js App Router en modo producción
-npm run start
+# Ejecuta el worker en primer plano
+node ./src/app/workers/worker.js
