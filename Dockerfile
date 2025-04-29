@@ -2,15 +2,15 @@
 FROM node:22.14.0-alpine AS builder
 WORKDIR /app
 
-# 1) Copia los archivos de dependencias y el esquema de Prisma
+# 1) Copia package.json, lock y Prisma schema
 COPY package*.json ./
 COPY prisma ./prisma
 
-# 2) Instala las dependencias y genera el cliente de Prisma
+# 2) Instala dependencias y genera Prisma Client
 RUN npm install
 RUN npx prisma generate
 
-# 3) Copia el resto del código y construye la aplicación Next.js
+# 3) Copia todo el código y construye Next.js
 COPY . .
 RUN npm run build
 
@@ -23,23 +23,23 @@ ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3000
 
-# Instala tini para el manejo adecuado de señales
+# Instala tini y ts-node para manejar procesos y ejecutar TS
 RUN apk add --no-cache tini
+RUN npm install ts-node typescript --production=false
 
-# Copia los artefactos necesarios desde la etapa de construcción
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/public ./public
+# Copia los artefactos de Next.js y node_modules
+COPY --from=builder /app/.next       ./.next
+COPY --from=builder /app/public      ./public
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 
-# Copia el script de inicio y otorga permisos de ejecución
+# Copia TODO el código fuente (incluye src/app/workers)
+COPY --from=builder /app/src ./src
+
+# Copia y da permisos al script de arranque
 COPY start.sh ./start.sh
 RUN chmod +x ./start.sh
 
-# Define tini como el punto de entrada para manejar correctamente las señales
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# Comando por defecto para iniciar la aplicación
-CMD ["./start.sh"]
-
+# Exponer puerto y usar tini como init
 EXPOSE 3000
+ENTRYPOINT ["/sbin/tini", "--", "./start.sh"]
