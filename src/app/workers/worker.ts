@@ -5,6 +5,7 @@ import axios from 'axios';
 const QUEUE_URL     = process.env.POST_URL!;      // p.ej. https://… up.railway.app/api/v2
 const API_URL       = process.env.API_URL!;        // p.ej. http://34.123.45.67
 const SERVICE_NAME  = 'microservice2';   // p.ej. microservice2
+const QUEUE_NAME  = 'coordinator'; 
 const QUEUE_SERVICE = 'queue-ms';  // p.ej. queue-ms
 
 async function publishEntities() {
@@ -18,14 +19,13 @@ async function publishEntities() {
 
     // 3) Construir el mensaje con tus entidades
     const payload = {
-      type:    'data-sync',
+      type:    '',
       sendTo:  SERVICE_NAME,
       failOn:  '',      // no definido aún
       error:   '',
       aviones,
       pilotos,
-      seguros,
-      processedBy: SERVICE_NAME,
+      seguros
     };
 
     // 4) Publicar en la cola
@@ -35,7 +35,7 @@ async function publishEntities() {
       {
         headers: {
           'Content-Type': 'application/json',
-          'X-Source':      SERVICE_NAME,
+          'X-Source':      QUEUE_NAME,
           'X-Destination': QUEUE_SERVICE,
         },
       }
