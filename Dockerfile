@@ -3,15 +3,15 @@
 
     WORKDIR /app
     
-    # Copiamos solo package.json y prisma/schema para cachear npm install y prisma generate
+    # 1.1 Copiamos package.json, lockfile y prisma/schema.prisma para cachear
     COPY package.json package-lock.json ./
     COPY prisma ./prisma/
     
-    # Instalamos dependencias y generamos el cliente Prisma
+    # 1.2 Instalamos dependencias y generamos Prisma Client
     RUN npm ci \
         && npx prisma generate
     
-    # Copiamos el resto del código y construimos Next.js
+    # 1.3 Copiamos el resto del código y construimos Next.js
     COPY . .
     RUN npm run build
     
@@ -20,27 +20,18 @@
     
     WORKDIR /app
     
-    # Traemos del builder solo lo necesario
-    COPY --from=builder /app/public ./public
-    COPY --from=builder /app/.next ./.next
-    COPY --from=builder /app/node_modules ./node_modules
-    COPY --from=builder /app/package.json ./package.json
-    COPY --from=builder /app/prisma ./prisma
+    # 2.1 Copiamos TODO lo que se generó en `builder` (incluye src/app/workers)
+    COPY --from=builder /app ./
     
-    # Variables de entorno (o monta tu .env en docker run / docker-compose)
-    # ENV DATABASE_URL="tu_url_supabase"\
-    #     NEXT_PUBLIC_SUPABASE_URL="..."\
-    #     NEXT_PUBLIC_SUPABASE_ANON_KEY="..."
-    
+    # 2.2 Exponemos el puerto de Next.js
     EXPOSE 3000
     
-    # Espera a que la base de datos esté lista (opcional pero muy recomendable)
-    # Incluye en tu proyecto un script wait-for-it.sh o usa dockerize
-    # COPY wait-for-it.sh /usr/local/bin/
-    # RUN chmod +x /usr/local/bin/wait-for-it.sh
-    
-    # 3) CMD usando concurrently para no morir si uno de los procesos falla ----
+    # 2.3 Instalamos `concurrently` para lanzar ambos procesos
     RUN npm install --save-dev concurrently
+    
+    # 3) Arranque --------------------------------------------------------------
+    #    - Levanta Next.js (App Router)  
+    #    - Arranca tu worker
     CMD ["npx", "concurrently", \
           "\"npm run start\"", \
           "\"node src/app/workers/worker.js\""]
