@@ -3,7 +3,7 @@ import 'dotenv/config';   // 1) Carga .env antes de todo
 import axios from 'axios';
 
 const QUEUE_URL     = process.env.POST_URL;      // p.ej. https://… up.railway.app/api/v2
-const API_URL       = process.env.API_URL;        // p.ej. http://34.123.45.67
+const API_URL       = process.env.API_URL || 'http://host.docker.internal:3000';        // p.ej. http://34.123.45.67
 const SERVICE_NAME  = 'microservice2';   // p.ej. microservice2
 const QUEUE_NAME  = 'coordinator'; 
 const QUEUE_SERVICE = 'queue-ms';  // p.ej. queue-ms
