@@ -1,9 +1,10 @@
 #!/bin/sh
 # start.sh
 
-# 1) Lanza el worker TS en background
-npx ts-node src/app/workers/worker.ts &
+# Lanza el worker TS en background usando el loader ESM de ts-node
+node --loader ts-node/esm src/app/workers/worker.ts &
 
-# 2) Luego arranca Next.js en primer plano
+# Luego arranca Next.js en primer plano
 npm start
+
 
