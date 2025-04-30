@@ -1,45 +1,21 @@
-# —————— Etapa 1: builder ——————
-FROM node:22.14.0-alpine AS builder
+FROM node:22.14.0-alpine
+
 WORKDIR /app
 
-# 1) Copia package.json, lock y Prisma schema
+# 1) Copia definiciones de dependencias
 COPY package*.json ./
-COPY prisma ./prisma
 
-# 2) Instala dependencias y genera Prisma Client
-RUN npm install
-RUN npx prisma generate
+# 2) Instala dependencias, incluyendo ts-node para ejecutar TS en caliente
+RUN npm install \
+ && npm install ts-node typescript --save
 
-# 3) Copia todo el código y construye Next.js
+# 3) Copia todo tu código fuente (incluye src/app/workers/worker.ts y el App Router)
 COPY . .
-RUN npm run build
 
-# —————— Etapa 2: runner ——————
-FROM node:22.14.0-alpine AS runner
-WORKDIR /app
-
-# Variables de entorno
-ENV NODE_ENV=production
-ENV HOST=0.0.0.0
-ENV PORT=3000
-
-# Instala tini y ts-node para manejar procesos y ejecutar TS
-RUN apk add --no-cache tini
-RUN npm install ts-node typescript --production=false
-
-# Copia los artefactos de Next.js y node_modules
-COPY --from=builder /app/.next       ./.next
-COPY --from=builder /app/public      ./public
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-
-# Copia TODO el código fuente (incluye src/app/workers)
-COPY --from=builder /app/src ./src
-
-# Copia y da permisos al script de arranque
-COPY start.sh ./start.sh
-RUN chmod +x ./start.sh
-
-# Exponer puerto y usar tini como init
+# 4) Expone el puerto donde Next.js atenderá (por defecto 3000)
 EXPOSE 3000
-ENTRYPOINT ["/sbin/tini", "--", "./start.sh"]
+
+# 5) Arranca Next.js App Router y el worker simultáneamente:
+#    - `npm run start` invoca `next start` (tu App Router) en background
+#    - `npx ts-node src/app/workers/worker.ts` ejecuta tu worker TS en foreground
+CMD ["sh", "-c", "npm run start & npx ts-node src/app/workers/worker.ts"]
