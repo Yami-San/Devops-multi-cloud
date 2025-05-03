@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  jeandocker:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: jeandocker
+    ports:
+      - "3000:3000"              # expone tu API al host
+    networks:
+      - net1
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: src/app/workers/Dockerfile
+    container_name: worker
+    environment:
+      - API_URL=http://jeandocker:3000
+      - POST_URL=https://house-inventory-devops-production.up.railway.app/api/v2
+    depends_on:
+      - jeandocker
+    networks:
+      - net1
+
+networks:
+  net1:
+    external: true              # usa la red existente net1
