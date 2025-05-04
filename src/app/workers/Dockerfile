@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # 2) Instalamos
-RUN npm ci --only=production
+RUN npm ci
 
 # 3) Copiamos el código del worker
 COPY src/app/workers ./src/app/workers
