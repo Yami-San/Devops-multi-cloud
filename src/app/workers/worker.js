@@ -3,10 +3,15 @@ import 'dotenv/config';   // 1) Carga .env antes de todo
 import axios from 'axios';
 
 const QUEUE_URL     = process.env.POST_URL;      // p.ej. https://… up.railway.app/api/v2
-const API_URL       = process.env.API_URL || 'http://host.docker.internal:3000';        // p.ej. http://34.123.45.67
+const API_URL       = process.env.API_URL;        // p.ej. http://34.123.45.67
 const SERVICE_NAME  = 'microservice2';   // p.ej. microservice2
 const QUEUE_NAME  = 'coordinator'; 
 const QUEUE_SERVICE = 'queue-ms';  // p.ej. queue-ms
+
+if (!API_URL || !QUEUE_URL) {
+  console.error('❌ Faltan variables de entorno: API_URL o POST_URL');
+  process.exit(1);
+}
 
 async function publishEntities() {
   try {
@@ -43,14 +48,17 @@ async function publishEntities() {
 
     console.log('Publicado en cola con status:', response.status);
   } catch (err) {
-    console.error('Error publicando entidades:', err);
-    if (err.response) {
-      console.error('Respuesta del servidor:', err.response.data);
-    } else if (err.request) {
-      console.error('No se recibió respuesta:', err.request);
+    if (axios.isAxiosError(err)) {
+      console.error('❌ Error en Axios:', err.message);
+      if (err.response) {
+        console.error('  ↳ Response data:', err.response.data);
+      } else if (err.request) {
+        console.error('  ↳ No hubo respuesta:', err.request);
+      }
     } else {
-      console.error('Error inesperado:', err);
+      console.error('❌ Error inesperado:', err);
     }
+    process.exit(1);
   }
 }
 
