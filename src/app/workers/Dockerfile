@@ -1,22 +1,27 @@
-# Usa una imagen ligera de Node.js
-FROM node:22.14.0-alpine
+# 1) Build stage
+FROM node:22.14.0-alpine AS builder
 
-# Directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia package.json y lockfile, luego instala dependencias
-COPY package*.json ./
+# Copy package files and install deps
+COPY package.json package-lock.json ./
 RUN npm ci
 
-# Copia solo el código del worker
+# Copy your TS source and compile it
 COPY src/app/workers ./src/app/workers
+COPY tsconfig.json ./
+RUN npx tsc --outDir dist/workers
 
-# (Opcional) Si usas TypeScript
-RUN npm install --save-dev ts-node typescript @types/node
+# 2) Production stage
+FROM node:22.14.0-alpine
 
-# Define variable NODE_ENV por defecto
-ENV NODE_ENV=production
+WORKDIR /app
 
-# Comando que arranca el worker
-# Ajusta la ruta si tu archivo es .js en lugar de .ts
-CMD ["npx", "ts-node", "src/app/workers/worker.ts"]
+# Only copy production deps and compiled code
+COPY package.json package-lock.json ./
+RUN npm ci --only=production
+
+COPY --from=builder /app/dist/workers ./workers
+
+# Use the compiled JS
+CMD ["node", "workers/worker.js"]
