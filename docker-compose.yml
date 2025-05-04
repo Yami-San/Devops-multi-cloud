@@ -3,7 +3,7 @@ version: "3.8"
 services:
   jeandocker:
     build:
-      context: ./api
+      context: .
       dockerfile: Dockerfile
     container_name: jeandocker
     ports:
@@ -13,7 +13,7 @@ services:
 
   worker:
     build:
-      context: ./worker
+      context: .
       dockerfile: src/app/workers/Dockerfile
     container_name: worker
     environment:
