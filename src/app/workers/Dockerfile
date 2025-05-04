@@ -1,27 +1,16 @@
-# 1) Build stage
-FROM node:22.14.0-alpine AS builder
-
-WORKDIR /app
-
-# Copy package files and install deps
-COPY package.json package-lock.json ./
-RUN npm ci
-
-# Copy your TS source and compile it
-COPY src/app/workers ./src/app/workers
-COPY tsconfig.json ./
-RUN npx tsc --outDir dist/workers
-
-# 2) Production stage
 FROM node:22.14.0-alpine
 
 WORKDIR /app
 
-# Only copy production deps and compiled code
-COPY package.json package-lock.json ./
-RUN npm ci --only=production
+# Copy everything and install deps (including dev‐deps)
+COPY package.json package-lock.json tsconfig.json ./
+RUN npm ci
 
-COPY --from=builder /app/dist/workers ./workers
+# Copy your TS code
+COPY src/app/workers ./src/app/workers
 
-# Use the compiled JS
-CMD ["node", "workers/worker.js"]
+# Install ts-node if you didn’t already include it
+RUN npm install --save-dev ts-node typescript @types/node
+
+# Tell Node to register ts-node for .ts imports
+CMD ["node", "-r", "ts-node/register", "src/app/workers/worker.ts"]
