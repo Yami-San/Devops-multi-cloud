@@ -21,11 +21,9 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/bun": "^1.2.4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.26.0",
     "@typescript-eslint/parser": "^8.26.0",
     "eslint": "^9.21.0",
@@ -36,7 +34,6 @@
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.2.0",
     "prisma": "^6.4.1",
-    "supertest": "^7.0.0",
     "tailwindcss": "^4",
     "typescript": "^5.8.3"
   }
