@@ -9,6 +9,7 @@ services:
       - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       - POST_URL=${POST_URL}
+      - API_BASE_URL=http://nextjs:3000
     env_file:
       - .env
 
@@ -20,5 +21,6 @@ services:
       - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       - POST_URL=${POST_URL}
+      - API_BASE_URL=http://nextjs:3000
     env_file:
       - .env

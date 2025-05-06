@@ -2,29 +2,33 @@
 
 require('dotenv').config();
 const axios = require('axios');
-const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient();
+// URL base de tu API Next.js (puede ser localhost en desarrollo o tu dominio en producción)
+const API_BASE = 'http://localhost:3000';
 
-// Cargamos de .env
-const POST_URL = process.env.POST_URL;       // <-- URL de tu cola (e.g. https://.../api/v2/messages/publish)
-const SOURCE  = 'coordinato';
-const DEST    = 'queue-ms';
+const POST_URL = process.env.POST_URL;       // <-- endpoint de la cola
+const SOURCE   = 'coordinato';
+const DEST     = 'queue-ms';
 
-async function fetchEntities() {
-  // Traemos cada entidad completa
-  const aviones  = await prisma.avion.findMany();
-  const pilotos  = await prisma.piloto.findMany();
-  const seguros  = await prisma.seguro.findMany();
-
-  return { aviones, pilotos, seguros };
+// Función para obtener datos de tus endpoints HTTP
+async function fetchEntitiesViaHTTP() {
+  const [pilotosRes, avionesRes, segurosRes] = await Promise.all([
+    axios.get(`${API_BASE}/api/v2/pilotos`),
+    axios.get(`${API_BASE}/api/v2/aviones`),
+    axios.get(`${API_BASE}/api/v2/seguros`)
+  ]);
+  return {
+    pilotos: pilotosRes.data,
+    aviones: avionesRes.data,
+    seguros: segurosRes.data
+  };
 }
 
 async function publishMessage(rawMessage) {
-  // Recuperamos entidades
-  const entities = await fetchEntities();
+  // Recupera entidades via HTTP
+  const entities = await fetchEntitiesViaHTTP();
 
-  // Añadimos las entidades al mensaje
+  // Enriquecer el mensaje
   const enriched = {
     ...rawMessage,
     data: {
@@ -33,11 +37,9 @@ async function publishMessage(rawMessage) {
     }
   };
 
-  // El body que manda el worker
+  // Construir body y enviarlo a la cola
   const body = { message: JSON.stringify(enriched) };
-
-  // Hacemos el POST
-  const res = await axios.post(POST_URL, body, {
+  const res  = await axios.post(POST_URL, body, {
     headers: {
       'Content-Type': 'application/json',
       'X-Source': SOURCE,
@@ -51,13 +53,12 @@ async function publishMessage(rawMessage) {
 async function start() {
   console.log('Worker arrancado. Preparado para publicar.');
 
-  // Ejemplo: este objeto vendría de tu recepción de mensaje original
+  // Ejemplo de mensaje entrante
   const incoming = {
     type: 'event',
     sendTo: 'microservice2',
     failOn: 'queue-reprocessed',
     error: '',
-    // opcionalmente ya puedes tener un data previo
     data: {}
   };
 
@@ -66,10 +67,8 @@ async function start() {
     console.log('Publicado con éxito, status:', status);
   } catch (err) {
     console.error('Error publicando mensaje:', err.message);
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
-// Si ejecutas worker.js directamente
+// Ejecutar si se corre directamente
 if (require.main === module) start();
