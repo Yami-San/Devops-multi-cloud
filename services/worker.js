@@ -57,7 +57,7 @@ async function start() {
   const incoming = {
     type: 'event',
     sendTo: 'microservice2',
-    failOn: 'queue-reprocessed',
+    failOn: '',
     error: '',
     data: {}
   };
