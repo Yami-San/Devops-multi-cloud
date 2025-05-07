@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 3000
 
 # 5. Lanza ambos procesos con sh -c
-CMD ["sh", "-c", "node src/worker.js"]
+CMD ["sh", "-c", "node services/worker.js"]
