@@ -25,7 +25,7 @@ async function fetchEntitiesViaHTTP() {
     axios.get(`${API_BASE}/api/v2/pilotos`),
     axios.get(`${API_BASE}/api/v2/aviones`),
     axios.get(`${API_BASE}/api/v2/seguros`)
-  ]);
+  ].map(p => p.then(res => res.data)));
   return {
     pilotos: pilotosRes.data,
     aviones: avionesRes.data,
