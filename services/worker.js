@@ -7,7 +7,7 @@ const axios = require('axios');
 const API_BASE = 'http://localhost:3000';
 
 const POST_URL = process.env.POST_URL;       // <-- endpoint de la cola
-const SOURCE   = 'coordinato';
+const SOURCE   = 'coordinator';
 const DEST     = 'queue-ms';
 
 // Función para obtener datos de tus endpoints HTTP
@@ -42,7 +42,7 @@ async function publishMessage(rawMessage) {
   const res  = await axios.post(POST_URL, body, {
     headers: {
       'Content-Type': 'application/json',
-      'X-Source': SOURCE,
+      'X-Source': "microservice2",
       'X-Destination': DEST
     }
   });
@@ -56,7 +56,7 @@ async function start() {
   // Ejemplo de mensaje entrante
   const incoming = {
     type: 'event',
-    sendTo: 'microservice2',
+    sendTo: "coordinator",
     failOn: '',
     error: '',
     data: {}
