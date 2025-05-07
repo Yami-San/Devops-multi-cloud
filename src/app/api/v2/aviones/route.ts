@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-
+export const dynamic = 'force-dynamic';
 // Crear un nuevo avión (POST)
 export async function POST(request: NextRequest) {
   try {

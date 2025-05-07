@@ -64,9 +64,9 @@ async function start() {
 
       try {
         // 1. Obtener entidades desde tu API Next.js
-        console.log('Empezando fetch de entidades', status)
+        console.log('Empezando fetch de entidades')
         const entities = await fetchEntitiesViaHTTP();
-        console.log('contrucción del payload', status)
+        console.log('contrucción del payload')
         // 2. Construir payload base con campos obligatorios
         const enriched = {
           type:   message.body.type,                              // Tipo de mensaje
@@ -75,11 +75,11 @@ async function start() {
           error:  message.body.error,                 // Mensaje de error si aplica
           data:   { entities }                              // Datos enriquecidos
         };
-        console.log('payload completado', status)
-        console.log('Pre publicacion en la cola', status)
+        console.log('payload completado')
+        console.log('Pre publicacion en la cola')
         // 3. Publicar en el endpoint externo
         const status = await postToExternalQueue(enriched);
-        console.log('Publicado con éxito, status:', status);
+        console.log('Publicado con éxito, status:');
       } catch (err) {
         console.error('Error procesando mensaje:', err.message);
       }
