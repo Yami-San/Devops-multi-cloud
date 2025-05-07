@@ -69,10 +69,10 @@ async function start() {
         console.log('contrucción del payload', status)
         // 2. Construir payload base con campos obligatorios
         const enriched = {
-          type:   '',                              // Tipo de mensaje
-          sendTo: message.body.sendTo || "microservice3",            // Destino de envío
-          failOn: message.body.failOn || '',                // Condición de fallo
-          error:  message.body.error || '',                 // Mensaje de error si aplica
+          type:   message.body.type,                              // Tipo de mensaje
+          sendTo: "microservice3",            // Destino de envío
+          failOn: message.body.failOn,                // Condición de fallo
+          error:  message.body.error,                 // Mensaje de error si aplica
           data:   { entities }                              // Datos enriquecidos
         };
         console.log('payload completado', status)
