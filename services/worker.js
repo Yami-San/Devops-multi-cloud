@@ -15,7 +15,7 @@ const SOURCE   = 'microservice2';
 const DEST     = 'queue-ms';
 
 // Base URL para consumir tu API Next.js
-const API_BASE = process.env.API_BASE_URL || 'http://127.0.0.1:3000';
+const API_BASE = process.env.API_BASE_URL || 'http://nextjs:3000';
 
 /**
  * Obtiene entidades desde tus endpoints HTTP.
@@ -25,7 +25,7 @@ async function fetchEntitiesViaHTTP() {
     axios.get(`${API_BASE}/api/v2/pilotos`),
     axios.get(`${API_BASE}/api/v2/aviones`),
     axios.get(`${API_BASE}/api/v2/seguros`)
-  ].map(p => p.then(res => res.data)));
+  ]);
   return {
     pilotos: pilotosRes.data,
     aviones: avionesRes.data,

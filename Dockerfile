@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 3000
 
 # 5. Lanza ambos procesos con sh -c
-CMD ["sh", "-c", "next start -p 3000 -H 0.0.0.0 & node services/worker.js"]
+CMD ["sh", "-c", "npm run start & node services/worker.js"]
