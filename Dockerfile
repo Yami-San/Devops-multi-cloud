@@ -7,11 +7,16 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# 3. Copia el resto del código
+# 3. Copia el esquema de Prisma *antes* de generar el cliente
+COPY prisma ./prisma
+# Genera el cliente de Prisma
+RUN npx prisma generate
+
+# 4. Copia el resto del código
 COPY . .
 
-# 4. Expone el puerto de Next.js
+# 5. Expone el puerto de Next.js
 EXPOSE 3000
 
-# 5. Lanza ambos procesos con sh -c
+# 6. Lanza ambos procesos
 CMD ["sh", "-c", "npm run start & node services/worker.js"]
