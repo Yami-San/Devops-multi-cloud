@@ -5,96 +5,97 @@ const { ServiceBusClient } = require('@azure/service-bus');
 const axios = require('axios');
 
 // Configuración vía .env
-const CONNECTION_STR     = process.env.CONNECTION_STR;       // Cadena de conexión a Azure Service Bus
-const TOPIC_NAME         = process.env.TOPIC_NAME;           // Nombre del topic en Service Bus
-const SUBSCRIPTION_NAME  = process.env.SUBSCRIPTION_NAME;    // Nombre de la suscripción
-const POST_URL           = process.env.POST_URL;             // Endpoint externo para reenviar mensajes
+const CONNECTION_STR     = process.env.CONNECTION_STR;         // Azure Service Bus principal
+const ALT_CONNECTION_STR = process.env.ALT_CONNECTION_STR;     // Azure Service Bus alternativo
+const TOPIC_NAME         = process.env.TOPIC_NAME;
+const SUBSCRIPTION_NAME  = process.env.SUBSCRIPTION_NAME;
+const POST_URL           = process.env.POST_URL;               // HTTP principal
+const ALT_POST_URL       = process.env.ALT_POST_URL;           // HTTP alternativo
 
-// Parámetros para publicar
-const SOURCE   = 'microservice2';
-const DEST     = 'queue-ms';
+const SOURCE = 'microservice2';
+const DEST   = 'queue-ms';
 
-// Base URL para consumir tu API Next.js
+// Dentro de un solo contenedor, localhost apunta a Next.js
 const API_BASE = process.env.API_BASE_URL || 'http://127.0.0.1:3000';
 
-/**
- * Obtiene entidades desde tus endpoints HTTP.
- */
 async function fetchEntitiesViaHTTP() {
-  const [pilotosRes, avionesRes, segurosRes] = await Promise.all([
+  const [p, a, s] = await Promise.all([
     axios.get(`${API_BASE}/api/v2/pilotos`),
     axios.get(`${API_BASE}/api/v2/aviones`),
     axios.get(`${API_BASE}/api/v2/seguros`)
   ]);
-  return {
-    pilotos: pilotosRes.data,
-    aviones: avionesRes.data,
-    seguros: segurosRes.data
-  };
+  return { pilotos: p.data, aviones: a.data, seguros: s.data };
 }
 
-/**
- * Publica el mensaje enriquecido en tu endpoint externo.
- */
-async function postToExternalQueue(enrichedMessage) {
-  const body = { message: JSON.stringify(enrichedMessage) };
-  const res  = await axios.post(POST_URL, body, {
+// Solo se encarga de POST HTTP
+async function postToExternalQueue(url, enriched) {
+  const body = { message: JSON.stringify(enriched) };
+  const res  = await axios.post(url, body, {
     headers: {
-      'Content-Type':  'application/json',
-      'X-Source':      SOURCE,
-      'X-Destination': DEST
+      'Content-Type':    'application/json',
+      'X-Source':        SOURCE,
+      'X-Destination':   DEST
     }
   });
   return res.status;
 }
 
-/**
- * Lógica principal: suscribirse y procesar mensajes entrantes.
- */
 async function start() {
-  console.log(`Conectando a Azure Service Bus…`);
+  console.log('Conectando a Azure Service Bus…');
+  
+  // Elige la cadena de conexión según el mensaje
   const sbClient = new ServiceBusClient(CONNECTION_STR);
   const receiver = sbClient.createReceiver(TOPIC_NAME, SUBSCRIPTION_NAME);
 
-  console.log(`Suscrito a topic '${TOPIC_NAME}', subscription '${SUBSCRIPTION_NAME}'.`);
+  console.log(`Suscrito a ${TOPIC_NAME}/${SUBSCRIPTION_NAME}`);
 
   receiver.subscribe({
-    async processMessage(message) {
-      console.log('Mensaje recibido:', message.body);
+    async processMessage(msg) {
+      const body = msg.body;
+      console.log('Mensaje recibido:', body);
 
       try {
-        // 1. Obtener entidades desde tu API Next.js
-        console.log('Empezando fetch de entidades')
+        console.log('Fetch de entidades…');
         const entities = await fetchEntitiesViaHTTP();
-        console.log('contrucción del payload')
-        // 2. Construir payload base con campos obligatorios
+
         const enriched = {
-          type:   message.body.type,                              // Tipo de mensaje
-          sendTo: "microservice3",            // Destino de envío
-          failOn: message.body.failOn,                // Condición de fallo
-          error:  message.body.error,                 // Mensaje de error si aplica
-          data:   { entities }                              // Datos enriquecidos
+          type:   body.type,
+          sendTo: 'microservice3',
+          failOn: body.failOn,
+          error:  body.error,
+          data:   { entities }
         };
-        console.log('payload completado')
-        console.log('Pre publicacion en la cola')
-        // 3. Publicar en el endpoint externo
-        const status = await postToExternalQueue(enriched);
-        console.log('Publicado con éxito, status:');
+        console.log('Payload listo');
+
+        // Si failOn es 'microservice2', usamos variables alternativas:
+        const useAlt = body.failOn === 'microservice2';
+
+        // 1) Para el HTTP POST:
+        const httpUrl = useAlt ? ALT_POST_URL : POST_URL;
+        const status  = await postToExternalQueue(httpUrl, enriched);
+        console.log('HTTP publicado, status:', status);
+
+        // 2) Para Service Bus, si necesitas reenviar al bus alternativo:
+        if (useAlt) {
+          console.log('Reconectando a Service Bus alternativo…');
+          const altClient = new ServiceBusClient(ALT_CONNECTION_STR);
+          const altSender = altClient.createSender(TOPIC_NAME);
+          await altSender.sendMessages({ body: enriched });
+          console.log('Mensaje reenviado al bus alternativo');
+          await altClient.close();
+        }
+
       } catch (err) {
         console.error('Error procesando mensaje:', err.message);
       }
     },
-
-    async processError(err) {
-      console.error('Error en el receiver:', err);
+    processError(err) {
+      console.error('Error en receiver:', err);
     }
   });
-
-  // El proceso permanece activo: receiver.subscribe mantiene el loop vivo.
 }
 
-// Ejecutar el worker
 start().catch(err => {
-  console.error('Error inicializando el worker:', err);
+  console.error('Error inicializando worker:', err);
   process.exit(1);
 });
