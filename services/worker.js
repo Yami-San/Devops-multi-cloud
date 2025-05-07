@@ -66,11 +66,10 @@ async function start() {
         // 1. Obtener entidades desde tu API Next.js
         console.log('Empezando fetch de entidades', status)
         const entities = await fetchEntitiesViaHTTP();
-        console.log('fetch terminado con exito', status)
         console.log('contrucción del payload', status)
         // 2. Construir payload base con campos obligatorios
         const enriched = {
-          type:   'data-sync',                              // Tipo de mensaje
+          type:   '',                              // Tipo de mensaje
           sendTo: message.body.sendTo || "microservice3",            // Destino de envío
           failOn: message.body.failOn || '',                // Condición de fallo
           error:  message.body.error || '',                 // Mensaje de error si aplica
