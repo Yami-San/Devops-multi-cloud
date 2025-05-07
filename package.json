@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@azure/service-bus": "^7.9.5",
     "@prisma/client": "^6.4.1",
     "@supabase/supabase-js": "^2.49.1",
     "axios": "^1.9.0",
