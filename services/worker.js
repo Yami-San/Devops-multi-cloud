@@ -15,7 +15,7 @@ const SOURCE   = 'microservice2';
 const DEST     = 'queue-ms';
 
 // Base URL para consumir tu API Next.js
-const API_BASE = process.env.API_BASE_URL || 'http://nextjs:3000';
+const API_BASE = process.env.API_BASE_URL || 'http://127.0.0.1:3000';
 
 /**
  * Obtiene entidades desde tus endpoints HTTP.
