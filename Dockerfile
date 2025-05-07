@@ -1,20 +1,17 @@
-# Etapa base
-FROM node:18-alpine AS base
+FROM node:20
+
+# 1. Define el directorio de trabajo
 WORKDIR /app
+
+# 2. Copia ficheros de dependencias e instala
 COPY package*.json ./
 RUN npm install
 
-# Etapa de construcción
-FROM base AS builder
+# 3. Copia el resto del código
 COPY . .
-RUN npm run build
 
-# Etapa de producción
-FROM node:18-alpine AS production
-WORKDIR /app
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
+# 4. Expone el puerto de Next.js
 EXPOSE 3000
-CMD ["npm", "start"]
+
+# 5. Lanza ambos procesos con sh -c
+CMD ["sh", "-c", "node src/worker.js"]
